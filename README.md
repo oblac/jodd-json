@@ -1,2 +1,3 @@
-# jodd-json
-JSON Java serializer and parser
+# Jodd JSON
+
+JSON Java serializer and parser.
