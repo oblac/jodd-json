@@ -30,7 +30,6 @@ import jodd.introspector.ClassIntrospector;
 import jodd.introspector.PropertyDescriptor;
 import jodd.json.meta.JsonAnnotationManager;
 import jodd.json.meta.TypeData;
-import jodd.util.CharArraySequence;
 import jodd.util.CharUtil;
 import jodd.util.StringPool;
 
@@ -115,8 +114,7 @@ public class JsonParser extends JsonParserBase {
 	 */
 	public static final String VALUES = "values";
 
-	protected int ndx = 0;
-	protected char[] input;
+	protected CharsInput input;
 	protected int total;
 	protected Path path;
 	protected boolean useAltPaths = Defaults.useAltPathsByParser;
@@ -138,7 +136,7 @@ public class JsonParser extends JsonParserBase {
 	 * Resets JSON parser, so it can be reused.
 	 */
 	protected void reset() {
-		this.ndx = 0;
+		this.input.ndx = 0;
 		this.textLen = 0;
 		this.path = new Path();
 		this.notFirstObject = false;
@@ -349,7 +347,7 @@ public class JsonParser extends JsonParserBase {
 	@SuppressWarnings("unchecked")
 	public <T> T parse(final String input, final Class<T> targetType) {
 		rootType = targetType;
-		return _parse(UnsafeUtil.getChars(input));
+		return _parse(new CharSequenceInput(input));
 	}
 
 	/**
@@ -391,7 +389,7 @@ public class JsonParser extends JsonParserBase {
 	 * Parses input JSON string.
 	 */
 	public <T> T parse(final String input) {
-		return _parse(UnsafeUtil.getChars(input));
+		return _parse(new CharSequenceInput(input));
 	}
 
 	/**
@@ -400,20 +398,20 @@ public class JsonParser extends JsonParserBase {
 	@SuppressWarnings("unchecked")
 	public <T> T parse(final char[] input, final Class<T> targetType) {
 		rootType = targetType;
-		return _parse(input);
+		return _parse(new CharArrayInput(input));
 	}
 
 	/**
 	 * Parses input JSON char array.
 	 */
 	public <T> T parse(final char[] input) {
-		return _parse(input);
+		return _parse(new CharArrayInput(input));
 	}
 
 
-	private <T> T _parse(final char[] input) {
-		this.input = input;
-		this.total = input.length;
+	private <T> T _parse(final CharsInput charsInput) {
+		this.input = charsInput;
+		this.total = input.total;
 
 		reset();
 
@@ -425,14 +423,14 @@ public class JsonParser extends JsonParserBase {
 			value = parseValue(rootType, null, null);
 		}
 		catch (final IndexOutOfBoundsException iofbex) {
-			syntaxError("End of JSON");
+			syntaxError("End of JSON", iofbex);
 			return null;
 		}
 
 		skipWhiteSpaces();
 
-		if (ndx != total) {
-			syntaxError("Trailing chars");
+		if (!input.isAtTheEnd()) {
+			syntaxError("Trailing chars", null);
 			return null;
 		}
 
@@ -464,7 +462,7 @@ public class JsonParser extends JsonParserBase {
 	protected Object parseValue(final Class targetType, final Class keyType, final Class componentType) {
 		final ValueConverter valueConverter;
 
-		final char c = input[ndx];
+		final char c = input.charAtNdx();
 
 		switch (c) {
 			case '\'':
@@ -472,7 +470,7 @@ public class JsonParser extends JsonParserBase {
 					break;
 				}
 			case '"':
-				ndx++;
+				input.ndx++;
 				Object string = parseStringContent(c);
 
 				valueConverter = lookupValueConverter();
@@ -486,7 +484,7 @@ public class JsonParser extends JsonParserBase {
 				return string;
 
 			case '{':
-				ndx++;
+				input.ndx++;
 				if (lazy) {
 					if (notFirstObject) {
 						final Object value = new ObjectParser(this, targetType, keyType, componentType);
@@ -503,7 +501,7 @@ public class JsonParser extends JsonParserBase {
 				return parseObjectContent(targetType, keyType, componentType);
 
 			case '[':
-				ndx++;
+				input.ndx++;
 				return parseArrayContent(targetType, componentType);
 
 			case '0':
@@ -530,7 +528,7 @@ public class JsonParser extends JsonParserBase {
 				return number;
 
 			case 'n':
-				ndx++;
+				input.ndx++;
 				if (match(N_ULL)) {
 					valueConverter = lookupValueConverter();
 					if (valueConverter != null) {
@@ -541,7 +539,7 @@ public class JsonParser extends JsonParserBase {
 				break;
 
 			case 't':
-				ndx++;
+				input.ndx++;
 				if (match(T_RUE)) {
 					Object value = Boolean.TRUE;
 
@@ -558,7 +556,7 @@ public class JsonParser extends JsonParserBase {
 				break;
 
 			case 'f':
-				ndx++;
+				input.ndx++;
 				if (match(F_ALSE)) {
 					Object value = Boolean.FALSE;
 
@@ -590,7 +588,7 @@ public class JsonParser extends JsonParserBase {
 			return string;
 		}
 
-		syntaxError("Invalid char: " + input[ndx]);
+		syntaxError("Invalid char: " + input.charAtNdx(), null);
 		return null;
 	}
 
@@ -615,8 +613,8 @@ public class JsonParser extends JsonParserBase {
 		int bracketCount = 1;
 		boolean insideString = false;
 
-		while (ndx < total) {
-			final char c = input[ndx];
+		while (!input.isEnd()) {
+			final char c = input.charAtNdx();
 
 			if (insideString) {
 				if (c == '\"' && notPrecededByEvenNumberOfBackslashes()) {
@@ -629,18 +627,18 @@ public class JsonParser extends JsonParserBase {
 			} else if (c == '}') {
 				bracketCount--;
 				if (bracketCount == 0) {
-					ndx++;
+					input.ndx++;
 					return;
 				}
 			}
-			ndx++;
+			input.ndx++;
 		}
 	}
 
 	private boolean notPrecededByEvenNumberOfBackslashes() {
-		int pos = ndx;
+		int pos = input.ndx;
 		int count = 0;
-		while (pos > 0 && input[pos - 1] == '\\') {
+		while (pos > 0 && input.charAt(pos - 1) == '\\') {
 			count++;
 			pos--;
 		}
@@ -673,43 +671,43 @@ public class JsonParser extends JsonParserBase {
 	 * Parses string content, once when starting quote has been consumed.
 	 */
 	protected String parseStringContent(final char quote) {
-		final int startNdx = ndx;
+		final int startNdx = input.ndx;
 
 		// roll-out until the end of the string or the escape char
 		while (true) {
-			final char c = input[ndx];
+			final char c = input.charAtNdx();
 
 			if (c == quote) {
 				// no escapes found, just use existing string
-				ndx++;
-				return new String(input, startNdx, ndx - 1 - startNdx);
+				input.ndx++;
+				return input.subString(startNdx, input.ndx - 1);
 			}
 
 			if (c == '\\') {
 				break;
 			}
 
-			ndx++;
+			input.ndx++;
 		}
 
 		// escapes found, proceed differently
 
-		textLen = ndx - startNdx;
+		textLen = input.ndx - startNdx;
 
 		growEmpty();
 
-//		for (int i = startNdx, j = 0; j < textLen; i++, j++) {
-//			text[j] = input[i];
-//		}
-		System.arraycopy(input, startNdx, text, 0, textLen);
+		for (int i = startNdx, j = 0; j < textLen; i++, j++) {
+			text[j] = input.charAt(i);
+		}
+//		System.arraycopy(input, startNdx, text, 0, textLen);
 
 		// escape char, process everything until the end
 		while (true) {
-			char c = input[ndx];
+			char c = input.charAtNdx();
 
 			if (c == quote) {
 				// done
-				ndx++;
+				input.ndx++;
 				final String str = new String(text, 0, textLen);
 				textLen = 0;
 				return str;
@@ -717,9 +715,9 @@ public class JsonParser extends JsonParserBase {
 
 			if (c == '\\') {
 				// escape char found
-				ndx++;
+				input.ndx++;
 
-				c = input[ndx];
+				c = input.charAtNdx();
 
 				switch (c) {
 					case '\"' : c = '\"'; break;
@@ -731,18 +729,18 @@ public class JsonParser extends JsonParserBase {
 					case 'r' : c = '\r'; break;
 					case 't' : c = '\t'; break;
 					case 'u' :
-						ndx++;
+						input.ndx++;
 						c = parseUnicode();
 						break;
 					default:
 						if (looseMode) {
 							if (c != '\'') {
 								c = '\\';
-								ndx--;
+								input.ndx--;
 							}
 						}
 						else {
-							syntaxError("Invalid escape char: " + c);
+							syntaxError("Invalid escape char: " + c, null);
 						}
 				}
 			}
@@ -753,7 +751,7 @@ public class JsonParser extends JsonParserBase {
 
 			growAndCopy();
 
-			ndx++;
+			input.ndx++;
 		}
 	}
 
@@ -789,10 +787,13 @@ public class JsonParser extends JsonParserBase {
 	 * Parses 4 characters and returns unicode character.
 	 */
 	protected char parseUnicode() {
-		final int i0 = CharUtil.hex2int(input[ndx++]);
-		final int i1 = CharUtil.hex2int(input[ndx++]);
-		final int i2 = CharUtil.hex2int(input[ndx++]);
-		final int i3 = CharUtil.hex2int(input[ndx]);
+		final int i0 = CharUtil.hex2int(input.charAtNdx());
+		input.ndx++;
+		final int i1 = CharUtil.hex2int(input.charAtNdx());
+		input.ndx++;
+		final int i2 = CharUtil.hex2int(input.charAtNdx());
+		input.ndx++;
+		final int i3 = CharUtil.hex2int(input.charAtNdx());
 
 		return (char) ((i0 << 12) + (i1 << 8) + (i2 << 4) + i3);
 	}
@@ -805,21 +806,21 @@ public class JsonParser extends JsonParserBase {
 	 * Parses un-quoted string content.
 	 */
 	protected String parseUnquotedStringContent() {
-		final int startNdx = ndx;
+		final int startNdx = input.ndx;
 
 		while (true) {
-			final char c = input[ndx];
+			final char c = input.charAtNdx();
 
 			if (c <= ' ' || CharUtil.equalsOne(c, UNQUOTED_DELIMETERS)) {
-				final int currentNdx = ndx;
+				final int currentNdx = input.ndx;
 
 				// done
 				skipWhiteSpaces();
 
-				return new String(input, startNdx, currentNdx - startNdx);
+				return input.subString(startNdx, currentNdx);
 			}
 
-			ndx++;
+			input.ndx++;
 		}
 	}
 
@@ -830,26 +831,26 @@ public class JsonParser extends JsonParserBase {
 	 * Parses JSON numbers.
 	 */
 	protected Number parseNumber() {
-		final int startIndex = ndx;
+		final int startIndex = input.ndx;
 
-		char c = input[ndx];
+		char c = input.charAtNdx();
 
 		boolean isDouble = false;
 		boolean isExp = false;
 
 		if (c == '-') {
-			ndx++;
+			input.ndx++;
 		}
 
 		while (true) {
-			if (isEOF()) {
+			if (input.isEnd()) {
 				break;
 			}
 
-			c = input[ndx];
+			c = input.charAtNdx();
 
 			if (c >= '0' && c <= '9') {
-				ndx++;
+				input.ndx++;
 				continue;
 			}
 			if (c <= 32) {		// white space
@@ -865,11 +866,11 @@ public class JsonParser extends JsonParserBase {
 			else if (c == 'e' || c == 'E') {
 				isExp = true;
 			}
-			ndx++;
+			input.ndx++;
 		}
 
 
-		final String value = new String(input, startIndex, ndx - startIndex);
+		final String value = input.subString(startIndex, input.ndx);
 
 		if (isDouble) {
 			return Double.valueOf(value);
@@ -940,14 +941,14 @@ public class JsonParser extends JsonParserBase {
 		while (true) {
 			skipWhiteSpaces();
 
-			char c = input[ndx];
+			char c = input.charAtNdx();
 
 			if (c == ']') {
 				if (koma) {
-					syntaxError("Trailing comma");
+					syntaxError("Trailing comma", null);
 				}
 
-				ndx++;
+				input.ndx++;
 				path.pop();
 				return target;
 			}
@@ -958,12 +959,12 @@ public class JsonParser extends JsonParserBase {
 
 			skipWhiteSpaces();
 
-			c = input[ndx];
+			c = input.charAtNdx();
 
 			switch (c) {
-				case ']': ndx++; break mainloop;
-				case ',': ndx++; koma = true; break;
-				default: syntaxError("Invalid char: expected ] or ,");
+				case ']': input.ndx++; break mainloop;
+				case ',': input.ndx++; koma = true; break;
+				default: syntaxError("Invalid char: expected ] or ,", null);
 			}
 
 		}
@@ -1034,14 +1035,14 @@ public class JsonParser extends JsonParserBase {
 		while (true) {
 			skipWhiteSpaces();
 
-			char c = input[ndx];
+			char c = input.charAtNdx();
 
 			if (c == '}') {
 				if (koma) {
-					syntaxError("Trailing comma");
+					syntaxError("Trailing comma", null);
 				}
 
-				ndx++;
+				input.ndx++;
 				break;
 			}
 
@@ -1129,12 +1130,12 @@ public class JsonParser extends JsonParserBase {
 
 			skipWhiteSpaces();
 
-			c = input[ndx];
+			c = input.charAtNdx();
 
 			switch (c) {
-				case '}': ndx++; break mainloop;
-				case ',': ndx++; koma = true; break;
-				default: syntaxError("Invalid char: expected } or ,");
+				case '}': input.ndx++; break mainloop;
+				case ',': input.ndx++; koma = true; break;
+				default: syntaxError("Invalid char: expected } or ,", null);
 			}
 		}
 
@@ -1154,11 +1155,11 @@ public class JsonParser extends JsonParserBase {
 	 * Consumes char at current position. If char is different, throws the exception.
 	 */
 	protected void consume(final char c) {
-		if (input[ndx] != c) {
-			syntaxError("Invalid char: expected " + c);
+		if (input.charAtNdx() != c) {
+			syntaxError("Invalid char: expected " + c, null);
 		}
 
-		ndx++;
+		input.ndx++;
 	}
 
 	/**
@@ -1167,22 +1168,15 @@ public class JsonParser extends JsonParserBase {
 	 * If matched, returns matched char.
 	 */
 	protected char consumeOneOf(final char c1, final char c2) {
-		final char c = input[ndx];
+		final char c = input.charAtNdx();
 
 		if ((c != c1) && (c != c2)) {
 			return 0;
 		}
 
-		ndx++;
+		input.ndx++;
 
 		return c;
-	}
-
-	/**
-	 * Returns <code>true</code> if scanning is at the end.
-	 */
-	protected boolean isEOF() {
-		return ndx >= total;
 	}
 
 	/**
@@ -1191,13 +1185,13 @@ public class JsonParser extends JsonParserBase {
 	 */
 	protected final void skipWhiteSpaces() {
 		while (true) {
-			if (isEOF()) {
+			if (input.isEnd()) {
 				return;
 			}
-			if (input[ndx] > 32) {
+			if (input.charAtNdx() > 32) {
 				return;
 			}
-			ndx++;
+			input.ndx++;
 		}
     }
 
@@ -1206,10 +1200,10 @@ public class JsonParser extends JsonParserBase {
 	 */
 	protected final boolean match(final char[] target) {
 		for (final char c : target) {
-			if (input[ndx] != c) {
+			if (input.charAtNdx() != c) {
 				return false;
 			}
-			ndx++;
+			input.ndx++;
 		}
 
 		return true;
@@ -1221,28 +1215,28 @@ public class JsonParser extends JsonParserBase {
 	/**
 	 * Throws {@link jodd.json.JsonException} indicating a syntax error.
 	 */
-	protected void syntaxError(final String message) {
+	protected void syntaxError(final String message, final Throwable cause) {
 		String left = "...";
 		String right = "...";
 		final int offset = 10;
 
-		int from = ndx - offset;
+		int from = input.ndx - offset;
 		if (from < 0) {
 			from = 0;
 			left = StringPool.EMPTY;
 		}
 
-		int to = ndx + offset;
-		if (to > input.length) {
-			to = input.length;
+		int to = input.ndx + offset;
+		if (to > input.total) {
+			to = input.total;
 			right = StringPool.EMPTY;
 		}
 
-		final CharSequence str = CharArraySequence.of(input, from, to - from);
+		final CharSequence str = input.subSequence(from, to);
 
 		throw new JsonException(
 				"Syntax error! " + message + "\n" +
-				"offset: " + ndx + " near: \"" + left + str + right + "\"");
+				"offset: " + input.ndx + " near: \"" + left + str + right + "\"", cause);
 	}
 
 }

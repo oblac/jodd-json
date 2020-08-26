@@ -53,7 +53,7 @@ class ObjectParser implements Supplier {
 	ObjectParser(final JsonParser jsonParser, final Class targetType, final Class keyType, final Class componentType) {
 		this.jsonParser = jsonParser;
 
-		this.ndx = jsonParser.ndx;
+		this.ndx = jsonParser.input.ndx;
 		this.path = jsonParser.path.clone();
 
 		this.targetType = targetType;
@@ -63,15 +63,15 @@ class ObjectParser implements Supplier {
 
 	@Override
 	public Object get() {
-		final int currentNdx = jsonParser.ndx;
+		final int currentNdx = jsonParser.input.ndx;
 		final Path currentPath = jsonParser.path;
 
-		jsonParser.ndx = ndx;
+		jsonParser.input.ndx = ndx;
 		jsonParser.path = path;
 
 		final Object object = jsonParser.parseObjectContent(targetType, keyType, componentType);
 
-		jsonParser.ndx = currentNdx;
+		jsonParser.input.ndx = currentNdx;
 		jsonParser.path = currentPath;
 
 		return object;
