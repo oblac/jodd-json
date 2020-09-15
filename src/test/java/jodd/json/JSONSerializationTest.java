@@ -74,9 +74,9 @@ class JSONSerializationTest {
 	@BeforeEach
 	@SuppressWarnings({"unchecked"})
 	void setUp() {
-		DataCreator dataCreator = new DataCreator();
+		final DataCreator dataCreator = new DataCreator();
 		pedroZip = new Zipcode("848485");
-		Person pedro = dataCreator.createPedro();
+		final Person pedro = dataCreator.createPedro();
 		jodder = dataCreator.createJodder();
 		modesty = dataCreator.createModesty();
 		colors = dataCreator.createColorMap();
@@ -99,9 +99,9 @@ class JSONSerializationTest {
 	@Test
 	void testObject() {
 		JsonSerializer.Defaults.classMetadataName = "class";
-		JsonSerializer serializer = new JsonSerializer();
+		final JsonSerializer serializer = new JsonSerializer();
 
-		String jodderJson = serializer.serialize(jodder);
+		final String jodderJson = serializer.serialize(jodder);
 
 		assertStringValue(Person.class.getName(), jodderJson);
 		assertAttribute("firstname", jodderJson);
@@ -120,9 +120,9 @@ class JSONSerializationTest {
 		assertStringValueMissing(Phone.class.getName(), jodderJson);
 		assertAttributeMissing("hobbies", jodderJson);
 
-		JsonSerializer jdrSerializer = new JsonSerializer();
+		final JsonSerializer jdrSerializer = new JsonSerializer();
 		jdrSerializer.exclude("home", "work");
-		String modestyJson = jdrSerializer.serialize(modesty);
+		final String modestyJson = jdrSerializer.serialize(modesty);
 		assertStringValue(Person.class.getName(), modestyJson);
 		assertAttribute("firstname", modestyJson);
 		assertStringValue("Modesty", modestyJson);
@@ -144,7 +144,7 @@ class JSONSerializationTest {
 
 		serializer.exclude("home.zipcode", "work.zipcode");
 
-		String json2 = serializer.serialize(jodder);
+		final String json2 = serializer.serialize(jodder);
 		assertStringValue(Person.class.getName(), json2);
 		assertAttribute("work", json2);
 		assertAttribute("home", json2);
@@ -160,7 +160,7 @@ class JSONSerializationTest {
 
 		serializer.include("hobbies").exclude(true, "phones.areaCode", "phones.exchange", "phones.number");
 
-		String json3 = serializer.serialize(jodder);
+		final String json3 = serializer.serialize(jodder);
 		assertStringValue(Person.class.getName(), json3);
 		assertAttribute("work", json3);
 		assertAttribute("home", json3);
@@ -186,10 +186,10 @@ class JSONSerializationTest {
 
 	@Test
 	void testMap() {
-		JsonSerializer serializer = new JsonSerializer();
-		String colorsJson = serializer.serialize(colors);
-		for (Object o : colors.entrySet()) {
-			Map.Entry entry = (Map.Entry) o;
+		final JsonSerializer serializer = new JsonSerializer();
+		final String colorsJson = serializer.serialize(colors);
+		for (final Object o : colors.entrySet()) {
+			final Map.Entry entry = (Map.Entry) o;
 			assertAttribute(entry.getKey().toString(), colorsJson);
 			assertStringValue(entry.getValue().toString(), colorsJson);
 		}
@@ -200,7 +200,7 @@ class JSONSerializationTest {
 		colors.put(null, "#aaaaaa");
 		colors.put("orange", null);
 
-		String json = serializer.serialize(colors);
+		final String json = serializer.serialize(colors);
 
 		assertTrue(json.contains("null:"));
 		assertStringValue("#aaaaaa", json);
@@ -210,12 +210,12 @@ class JSONSerializationTest {
 
 	@Test
 	void testArray() {
-		int[] array = new int[30];
+		final int[] array = new int[30];
 		for (int i = 0; i < array.length; i++) {
 			array[i] = i;
 		}
 
-		String json = new JsonSerializer().serialize(array);
+		final String json = new JsonSerializer().serialize(array);
 
 		for (int i = 0; i < array.length; i++) {
 			assertNumber(i, json);
@@ -227,10 +227,10 @@ class JSONSerializationTest {
 
 	@Test
 	void testCollection() {
-		JsonSerializer serializer = new JsonSerializer();
-		String colorsJson = serializer.serialize(colors.values());
-		for (Object o : colors.entrySet()) {
-			Map.Entry entry = (Map.Entry) o;
+		final JsonSerializer serializer = new JsonSerializer();
+		final String colorsJson = serializer.serialize(colors.values());
+		for (final Object o : colors.entrySet()) {
+			final Map.Entry entry = (Map.Entry) o;
 			assertAttributeMissing(entry.getKey().toString(), colorsJson);
 			assertStringValue(entry.getValue().toString(), colorsJson);
 		}
@@ -280,8 +280,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testDeepIncludes() {
-		JsonSerializer serializer = new JsonSerializer();
-		String peopleJson = serializer.include("people.hobbies").serialize(network);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String peopleJson = serializer.include("people.hobbies").serialize(network);
 
 		assertAttribute("name", peopleJson);
 		assertStringValue("My Network", peopleJson);
@@ -296,8 +296,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testDates() {
-		JsonSerializer serializer = new JsonSerializer();
-		String peopleJson = serializer.exclude("home", "work").serialize(jodder);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String peopleJson = serializer.exclude("home", "work").serialize(jodder);
 		assertAttribute("firstname", peopleJson);
 		assertStringValue("Igor", peopleJson);
 		assertNumber(jodder.getBirthdate().getTime(), peopleJson);
@@ -306,8 +306,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testSimpleShallowWithListInMap() {
-		JsonSerializer serializer = new JsonSerializer();
-		Map wrapper = new HashMap();
+		final JsonSerializer serializer = new JsonSerializer();
+		final Map wrapper = new HashMap();
 		wrapper.put("name", "Joe Blow");
 		wrapper.put("people", people);
 		String peopleJson = serializer.serialize(wrapper);
@@ -320,30 +320,18 @@ class JSONSerializationTest {
 
 	@Test
 	void testSimpleShallowWithListInObject() {
-		JsonSerializer serializer = new JsonSerializer();
-		ListContainer wrapper = new ListContainer();
+		final JsonSerializer serializer = new JsonSerializer();
+		final ListContainer wrapper = new ListContainer();
 		wrapper.setName("Joe Blow");
 		wrapper.setPeople(people);
-		String peopleJson = serializer.serialize(wrapper);
+		final String peopleJson = serializer.serialize(wrapper);
 		assertFalse(peopleJson.contains("["));
 	}
 
 	@Test
-	void testSetIncludes() {
-		JsonSerializer serializer = new JsonSerializer();
-		serializer.include("people.hobbies", "phones", "home", "people.resume");
-
-		assertEquals(4, serializer.rules.totalRules());
-		assertEquals("[people.hobbies]", serializer.rules.getRule(0).toString());
-		assertEquals("[phones]", serializer.rules.getRule(1).toString());
-		assertEquals("[home]", serializer.rules.getRule(2).toString());
-		assertEquals("[people.resume]", serializer.rules.getRule(3).toString());
-	}
-
-	@Test
 	void testDeepSerialization() {
-		JsonSerializer serializer = new JsonSerializer();
-		String peopleJson = serializer.deep(true).serialize(network);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String peopleJson = serializer.deep(true).serialize(network);
 
 		assertAttribute("name", peopleJson);
 		assertStringValue("My Network", peopleJson);
@@ -358,8 +346,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testDeepSerializationWithIncludeOverrides() {
-		JsonSerializer serializer = new JsonSerializer();
-		String peopleJson = serializer.include("people.hobbies").deep(true).serialize(network);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String peopleJson = serializer.include("people.hobbies").deep(true).serialize(network);
 
 		assertAttribute("firstname", peopleJson);
 		assertStringValue("Igor", peopleJson);
@@ -371,8 +359,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testDeepSerializationWithExcludes() {
-		JsonSerializer serializer = new JsonSerializer();
-		String peopleJson = serializer.exclude("people.work").deep(true).serialize(network);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String peopleJson = serializer.exclude("people.work").deep(true).serialize(network);
 
 		assertAttribute("firstname", peopleJson);
 		assertStringValue("Igor", peopleJson);
@@ -384,8 +372,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testDeepSerializationCycles() {
-		JsonSerializer serializer = new JsonSerializer();
-		String json = serializer.deep(true).serialize(people);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String json = serializer.deep(true).serialize(people);
 
 		assertAttribute("zipcode", json);
 		assertEquals(2, occurs(pedroZip.getZipcode(), json));
@@ -394,8 +382,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testSerializeSuperClass() {
-		JsonSerializer serializer = new JsonSerializer();
-		String json = serializer.serialize(dilbert);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String json = serializer.serialize(dilbert);
 
 		assertAttribute("company", json);
 		assertStringValue("Initech", json);
@@ -405,10 +393,10 @@ class JSONSerializationTest {
 
 	@Test
 	void testSerializePublicFields() {
-		Spiderman spiderman = new Spiderman();
+		final Spiderman spiderman = new Spiderman();
 
-		JsonSerializer serializer = new JsonSerializer();
-		String json = serializer.serialize(spiderman);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String json = serializer.serialize(spiderman);
 
 		assertAttribute("spideySense", json);
 		assertAttribute("superpower", json);
@@ -417,9 +405,9 @@ class JSONSerializationTest {
 
 	@Test
 	void testExcludingPublicFields() {
-		Spiderman spiderman = new Spiderman();
+		final Spiderman spiderman = new Spiderman();
 
-		String json = new JsonSerializer().exclude("superpower").serialize(spiderman);
+		final String json = new JsonSerializer().exclude("superpower").serialize(spiderman);
 
 		assertAttributeMissing("superpower", json);
 		assertAttribute("spideySense", json);
@@ -429,8 +417,8 @@ class JSONSerializationTest {
 	@Test
 	void testWildcards() {
 		JsonSerializer.Defaults.classMetadataName = "class";
-		JsonSerializer serializer = new JsonSerializer();
-		String json = serializer.include("phones").exclude("*.class").serialize(jodder);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String json = serializer.include("phones").exclude("*.class").serialize(jodder);
 
 		assertAttributeMissing("class", json);
 		assertAttribute("phones", json);
@@ -463,8 +451,8 @@ class JSONSerializationTest {
 
 	@Test
 	void testExcludeAll() {
-		JsonSerializer serializer = new JsonSerializer();
-		String json = serializer.exclude("*").serialize(jodder);
+		final JsonSerializer serializer = new JsonSerializer();
+		final String json = serializer.exclude("*").serialize(jodder);
 
 		assertEquals("{}", json);
 	}
@@ -498,11 +486,11 @@ class JSONSerializationTest {
 
 	@Test
 	void testCopyOnWriteList() {
-		CopyOnWriteArrayList<Person> people = new CopyOnWriteArrayList<>();
+		final CopyOnWriteArrayList<Person> people = new CopyOnWriteArrayList<>();
 		people.add(jodder);
 		people.add(modesty);
 
-		String json = new JsonSerializer().serialize(people);
+		final String json = new JsonSerializer().serialize(people);
 		assertAttribute("firstname", json);
 		assertStringValue("Igor", json);
 		assertStringValue("Modesty", json);
@@ -510,10 +498,10 @@ class JSONSerializationTest {
 
 	@Test
 	void testAnnotations() {
-		HashMap<String, TestClass3> map = new HashMap<>();
+		final HashMap<String, TestClass3> map = new HashMap<>();
 		map.put("String1", new TestClass3());
 
-		TestClass2 testElement = new TestClass2();
+		final TestClass2 testElement = new TestClass2();
 		testElement.setMapOfJustice(map);
 
 		String json = new JsonSerializer().serialize(testElement);
@@ -531,7 +519,7 @@ class JSONSerializationTest {
 
 	@Test
 	void testTransient() {
-		TestClass2 testElement = new TestClass2();
+		final TestClass2 testElement = new TestClass2();
 
 		String json = new JsonSerializer().serialize(testElement);
 		assertAttributeMissing("description", json);
@@ -542,15 +530,15 @@ class JSONSerializationTest {
 
 	@Test
 	void testSettersWithoutGettersAreMissing() {
-		Friend friend = new Friend("Nugget", "Donkey Rider", "Slim");
-		String json = new JsonSerializer().include("*").serialize(friend);
+		final Friend friend = new Friend("Nugget", "Donkey Rider", "Slim");
+		final String json = new JsonSerializer().include("*").serialize(friend);
 		assertAttribute("nicknames", json);
 		assertAttributeMissing("nicknamesAsArray", json);
 	}
 
 	@Test
 	void testIncludesExcludes() throws FileNotFoundException {
-		Surfer surfer = Surfer.createSurfer();
+		final Surfer surfer = Surfer.createSurfer();
 
 		String json = new JsonSerializer().serialize(surfer);
 
@@ -605,7 +593,7 @@ class JSONSerializationTest {
 
 	@Test
 	void testSuperclass() {
-		Hill hill = new Hill();
+		final Hill hill = new Hill();
 		hill.setHeight("qwe");
 		hill.setName("aaa");
 
@@ -614,7 +602,7 @@ class JSONSerializationTest {
 		assertAttribute("height", json);
 		assertAttributeMissing("name", json);
 
-		Mountain mountain = new Mountain();
+		final Mountain mountain = new Mountain();
 		mountain.setName("bbb");
 		mountain.setHeight("123");
 		mountain.setWild(true);
@@ -645,22 +633,22 @@ class JSONSerializationTest {
 		public String getName() {
 			return name;
 		}
-		public void setName(String name) {
+		public void setName(final String name) {
 			this.name = name;
 		}
 		public String getAddress() {
 			return address;
 		}
-		public void setAddress(String address) {
+		public void setAddress(final String address) {
 			this.address = address;
 		}
 	}
 
 	@Test
 	void testSerializeWithCustomBeanSerializer() {
-		JsonSerializer jsonSerializer = new JsonSerializer();
+		final JsonSerializer jsonSerializer = new JsonSerializer();
 
-		Lucy lucy = new Lucy();
+		final Lucy lucy = new Lucy();
 		String json = jsonSerializer.serialize(lucy);
 
 		assertAttribute("address", json);
@@ -668,12 +656,12 @@ class JSONSerializationTest {
 
 		jsonSerializer.withSerializer(Object.class, new ObjectJsonSerializer() {
 			@Override
-			public void serializeValue(final JsonContext jsonContext, Object value) {
+			public void serializeValue(final JsonContext jsonContext, final Object value) {
 				jsonContext.writeOpenObject();
 
-				BeanSerializer beanVisitor = new BeanSerializer(jsonContext, value) {
+				final BeanSerializer beanVisitor = new BeanSerializer(jsonContext, value) {
 					@Override
-					protected void onSerializableProperty(String propertyName, Class propertyType, Object value) {
+					protected void onSerializableProperty(final String propertyName, final Class propertyType, final Object value) {
 						if (value == null) {
 							return;
 						}
@@ -748,7 +736,7 @@ class JSONSerializationTest {
 	// ---------------------------------------------------------------- custom asserts
 
 
-	private int occurs(String str, String json) {
+	private int occurs(final String str, final String json) {
 		int current = 0;
 		int count = 0;
 		while (current >= 0) {
@@ -761,15 +749,15 @@ class JSONSerializationTest {
 		return count;
 	}
 
-	private void assertAttributeMissing(String attribute, String json) {
+	private void assertAttributeMissing(final String attribute, final String json) {
 		assertAttribute(attribute, json, false);
 	}
 
-	private void assertAttribute(String attribute, String json) {
+	private void assertAttribute(final String attribute, final String json) {
 		assertAttribute(attribute, json, true);
 	}
 
-	private void assertAttribute(String attribute, String json, boolean isPresent) {
+	private void assertAttribute(final String attribute, final String json, final boolean isPresent) {
 		if (isPresent) {
 			assertTrue(json.contains("\"" + attribute + "\":"));
 		}
@@ -778,7 +766,7 @@ class JSONSerializationTest {
 		}
 	}
 
-	private void assertStringValue(String value, String json, boolean isPresent) {
+	private void assertStringValue(final String value, final String json, final boolean isPresent) {
 		if (isPresent) {
 			assertTrue(json.contains("\"" + value + "\""));
 		}
@@ -787,21 +775,21 @@ class JSONSerializationTest {
 		}
 	}
 
-	private void assertNumber(Number number, String json) {
+	private void assertNumber(final Number number, final String json) {
 		assertTrue(json.contains(number.toString()));
 	}
 
-	private void assertStringValueMissing(String value, String json) {
+	private void assertStringValueMissing(final String value, final String json) {
 		assertStringValue(value, json, false);
 	}
 
-	private void assertStringValue(String value, String json) {
+	private void assertStringValue(final String value, final String json) {
 		assertStringValue(value, json, true);
 	}
 
-	private void assertSerializedTo(String original, String expected) {
-		JsonSerializer serializer = new JsonSerializer();
-		String json = serializer.serialize(original);
+	private void assertSerializedTo(final String original, final String expected) {
+		final JsonSerializer serializer = new JsonSerializer();
+		final String json = serializer.serialize(original);
 		assertEquals(expected, json);
 	}
 

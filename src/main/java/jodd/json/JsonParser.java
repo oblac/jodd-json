@@ -1091,7 +1091,8 @@ public class JsonParser extends JsonParserBase {
 
 					path.pop();
 
-				if (typeData.rules.match(keyOriginal, !typeData.strict)) {
+//				if (typeData.rules.match(keyOriginal, !typeData.strict)) {
+				if (typeData.rules.match(keyOriginal)) {
 
 					if (pd != null) {
 						if (lazy) {

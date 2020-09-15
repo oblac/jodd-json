@@ -25,7 +25,7 @@
 
 package jodd.json;
 
-import jodd.cache.TypeCache;
+import jodd.util.TypeCache;
 
 public class TypeJsonParserMap {
 

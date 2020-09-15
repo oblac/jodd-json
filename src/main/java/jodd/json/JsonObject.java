@@ -25,7 +25,7 @@
 
 package jodd.json;
 
-import jodd.util.collection.MapEntry;
+import jodd.util.MapEntry;
 
 import java.util.Base64;
 import java.util.Iterator;
@@ -42,7 +42,7 @@ import java.util.stream.Stream;
  */
 public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 
-	private Map<String, Object> map;
+	private final Map<String, Object> map;
 
 	/**
 	 * Create a new, empty instance.
@@ -64,7 +64,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Returns the string value with the specified key.
 	 */
 	public String getString(final String key) {
-		CharSequence cs = (CharSequence) map.get(key);
+		final CharSequence cs = (CharSequence) map.get(key);
 		return cs == null ? null : cs.toString();
 	}
 
@@ -72,7 +72,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * returns the integer value with the specified key.
 	 */
 	public Integer getInteger(final String key) {
-		Number number = (Number) map.get(key);
+		final Number number = (Number) map.get(key);
 
 		if (number == null) {
 			return null;
@@ -87,7 +87,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Returns the long value with the specified key.
 	 */
 	public Long getLong(final String key) {
-		Number number = (Number) map.get(key);
+		final Number number = (Number) map.get(key);
 
 		if (number == null) {
 			return null;
@@ -102,7 +102,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Returns the double value with the specified key.
 	 */
 	public Double getDouble(final String key) {
-		Number number = (Number) map.get(key);
+		final Number number = (Number) map.get(key);
 
 		if (number == null) {
 			return null;
@@ -117,7 +117,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Returns the float value with the specified key.
 	 */
 	public Float getFloat(final String key) {
-		Number number = (Number) map.get(key);
+		final Number number = (Number) map.get(key);
 
 		if (number == null) {
 			return null;
@@ -166,7 +166,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * THe byte array is Base64 encoded binary.
 	 */
 	public byte[] getBinary(final String key) {
-		String encoded = (String) map.get(key);
+		final String encoded = (String) map.get(key);
 		return encoded == null ? null : Base64.getDecoder().decode(encoded);
 	}
 
@@ -175,7 +175,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getValue(final String key) {
-		T val = (T) map.get(key);
+		final T val = (T) map.get(key);
 
 		if (val instanceof Map) {
 			return (T) new JsonObject((Map) val);
@@ -192,7 +192,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getString(String)} but specifies a default value to return if there is no entry.
 	 */
 	public String getString(final String key, final String def) {
-		String val = getString(key);
+		final String val = getString(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -208,7 +208,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getInteger(String)} but specifies a default value to return if there is no entry.
 	 */
 	public Integer getInteger(final String key, final Integer def) {
-		Integer val = getInteger(key);
+		final Integer val = getInteger(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -224,7 +224,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getLong(String)} but specifies a default value to return if there is no entry.
 	 */
 	public Long getLong(final String key, final Long def) {
-		Long val = getLong(key);
+		final Long val = getLong(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -240,7 +240,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getDouble(String)} but specifies a default value to return if there is no entry.
 	 */
 	public Double getDouble(final String key, final Double def) {
-		Double val = getDouble(key);
+		final Double val = getDouble(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -256,7 +256,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getFloat(String)} but specifies a default value to return if there is no entry.
 	 */
 	public Float getFloat(final String key, final Float def) {
-		Float val = getFloat(key);
+		final Float val = getFloat(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -272,7 +272,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getBoolean(String)} but specifies a default value to return if there is no entry.
 	 */
 	public Boolean getBoolean(final String key, final Boolean def) {
-		Boolean val = getBoolean(key);
+		final Boolean val = getBoolean(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -288,7 +288,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getJsonObject(String)} but specifies a default value to return if there is no entry.
 	 */
 	public JsonObject getJsonObject(final String key, final JsonObject def) {
-		JsonObject val = getJsonObject(key);
+		final JsonObject val = getJsonObject(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -304,7 +304,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getJsonArray(String)} but specifies a default value to return if there is no entry.
 	 */
 	public JsonArray getJsonArray(final String key, final JsonArray def) {
-		JsonArray val = getJsonArray(key);
+		final JsonArray val = getJsonArray(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -321,7 +321,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getBinary(String)} but specifies a default value to return if there is no entry.
 	 */
 	public byte[] getBinary(final String key, final byte[] def) {
-		byte[] val = getBinary(key);
+		final byte[] val = getBinary(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -338,7 +338,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	 * Like {@link #getValue(String)} but specifies a default value to return if there is no entry.
 	 */
 	public <T> T getValue(final String key, final T def) {
-		T val = getValue(key);
+		final T val = getValue(key);
 
 		if (val == null) {
 			if (map.containsKey(key)) {
@@ -582,7 +582,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 			return this;
 		}
 
-		for (Map.Entry<String, Object> e : other.map.entrySet()) {
+		for (final Map.Entry<String, Object> e : other.map.entrySet()) {
 			map.merge(e.getKey(), e.getValue(), (oldVal, newVal) -> {
 				if (oldVal instanceof Map) {
 					oldVal = new JsonObject((Map) oldVal);
@@ -667,7 +667,7 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 	}
 
 	static boolean objectEquals(final Map<?, ?> m1, final Object o2) {
-		Map<?, ?> m2;
+		final Map<?, ?> m2;
 		if (o2 instanceof JsonObject) {
 			m2 = ((JsonObject) o2).map;
 		} else if (o2 instanceof Map<?, ?>) {
@@ -678,8 +678,8 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 		if (m1.size() != m2.size()) {
 			return false;
 		}
-		for (Map.Entry<?, ?> entry : m1.entrySet()) {
-			Object val = entry.getValue();
+		for (final Map.Entry<?, ?> entry : m1.entrySet()) {
+			final Object val = entry.getValue();
 			if (val == null) {
 				if (m2.get(entry.getKey()) != null) {
 					return false;
@@ -710,8 +710,8 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 			return JsonArray.arrayEquals((List<?>) o1, o2);
 		}
 		if (o1 instanceof Number && o2 instanceof Number && o1.getClass() != o2.getClass()) {
-			Number n1 = (Number) o1;
-			Number n2 = (Number) o2;
+			final Number n1 = (Number) o1;
+			final Number n2 = (Number) o2;
 			if (o1 instanceof Float || o1 instanceof Double || o2 instanceof Float || o2 instanceof Double) {
 				return n1.doubleValue() == n2.doubleValue();
 			} else {
@@ -746,13 +746,13 @@ public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 
 		@Override
 		public Map.Entry<String, Object> next() {
-			Map.Entry<String, Object> entry = mapIterator.next();
+			final Map.Entry<String, Object> entry = mapIterator.next();
 
 			if (entry.getValue() instanceof Map) {
-				return MapEntry.createUnmodifiable(entry.getKey(), new JsonObject((Map) entry.getValue()));
+				return MapEntry.ofUnmodifiable(entry.getKey(), new JsonObject((Map) entry.getValue()));
 			}
 			if (entry.getValue() instanceof List) {
-				return MapEntry.createUnmodifiable(entry.getKey(), new JsonArray((List) entry.getValue()));
+				return MapEntry.ofUnmodifiable(entry.getKey(), new JsonArray((List) entry.getValue()));
 			}
 
 			return entry;

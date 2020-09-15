@@ -25,28 +25,32 @@
 
 package jodd.json.meta;
 
-import jodd.inex.InExRules;
 import jodd.util.ArraysUtil;
+import jodd.util.InExRules;
 
 import java.util.List;
+
+import static jodd.util.InExRules.InExType.BLACKLIST;
+import static jodd.util.InExRules.InExType.WHITELIST;
+import static jodd.util.InExRules.WILDCARD_STRING_MATCHER;
 
 /**
  * Type information read from annotations.
  */
 public class TypeData {
-	public final InExRules<String, String, String> rules;
+	public final InExRules<String, String> rules;
 	public final boolean strict;
 
 	public final String[] jsonNames;
 	public final String[] realNames;
 
 	public TypeData(final List<String> includes, final List<String> excludes, final boolean strict, final String[] jsonNames, final String[] realNames) {
-		rules = new InExRules<>();
+		rules = new InExRules<>(strict ? WHITELIST : BLACKLIST, WILDCARD_STRING_MATCHER);
 
-		for (String include : includes) {
+		for (final String include : includes) {
 			rules.include(include);
 		}
-		for (String exclude : excludes) {
+		for (final String exclude : excludes) {
 			rules.exclude(exclude);
 		}
 
@@ -62,7 +66,7 @@ public class TypeData {
 		if (jsonNames == null) {
 			return jsonName;
 		}
-		int jsonIndex = ArraysUtil.indexOf(jsonNames, jsonName);
+		final int jsonIndex = ArraysUtil.indexOf(jsonNames, jsonName);
 		if (jsonIndex == -1) {
 			return jsonName;
 		}
@@ -76,7 +80,7 @@ public class TypeData {
 		if (realNames == null) {
 			return realName;
 		}
-		int realIndex = ArraysUtil.indexOf(realNames, realName);
+		final int realIndex = ArraysUtil.indexOf(realNames, realName);
 		if (realIndex == -1) {
 			return realName;
 		}

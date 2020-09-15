@@ -25,10 +25,10 @@
 
 package jodd.json;
 
-import jodd.buffer.FastCharBuffer;
-import jodd.inex.InExRules;
 import jodd.util.ArraysUtil;
+import jodd.util.InExRules;
 
+import java.io.CharArrayWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -99,12 +99,8 @@ public class JsonSerializer {
 	protected Map<Path, TypeJsonSerializer> pathSerializersMap;
 	protected TypeJsonSerializerMap typeSerializersMap;
 
-	protected InExRules<Path, PathQuery, PathQuery> rules = new InExRules<Path, PathQuery, PathQuery>() {
-		@Override
-		public boolean accept(final Path value, final PathQuery rule, final boolean include) {
-			return rule.matches(value);
-		}
-	};
+	protected InExRules<Path, PathQuery> rules = new InExRules<>(
+			InExRules.InExType.BLACKLIST, pathQuery -> pathQuery::matches);
 
 	protected String classMetadataName = Defaults.classMetadataName;
 	protected boolean strictStringEncoding = Defaults.strictStringEncoding;
@@ -154,7 +150,7 @@ public class JsonSerializer {
 	 * Adds a list of included path queries.
 	 */
 	public JsonSerializer include(final String... includes) {
-		for (String include : includes) {
+		for (final String include : includes) {
 			include(include);
 		}
 		return this;
@@ -173,7 +169,7 @@ public class JsonSerializer {
 	 * Adds a list of excluded path queries.
 	 */
 	public JsonSerializer exclude(final String... excludes) {
-		for (String exclude : excludes) {
+		for (final String exclude : excludes) {
 			exclude(exclude);
 		}
 		return this;
@@ -185,17 +181,17 @@ public class JsonSerializer {
 	 * For example, exclude of 'aaa.bb.ccc' would include it's parent: 'aaa.bb'.
 	 */
 	public JsonSerializer exclude(final boolean includeParent, final String... excludes) {
-		for (String exclude : excludes) {
+		for (final String exclude : excludes) {
 			if (includeParent) {
-				int dotIndex = exclude.lastIndexOf('.');
+				final int dotIndex = exclude.lastIndexOf('.');
 				if (dotIndex != -1) {
-					PathQuery pathQuery = new PathQuery(exclude.substring(0, dotIndex), true);
+					final PathQuery pathQuery = new PathQuery(exclude.substring(0, dotIndex), true);
 
 					rules.include(pathQuery);
 				}
 			}
 
-			PathQuery pathQuery = new PathQuery(exclude, false);
+			final PathQuery pathQuery = new PathQuery(exclude, false);
 
 			rules.exclude(pathQuery);
 		}
@@ -299,7 +295,7 @@ public class JsonSerializer {
 	 * Serializes object into provided appendable.
 	 */
 	public void serialize(final Object source, final Appendable target) {
-		JsonContext jsonContext = createJsonContext(target);
+		final JsonContext jsonContext = createJsonContext(target);
 
 		jsonContext.serialize(source);
 	}
@@ -308,22 +304,11 @@ public class JsonSerializer {
 	 * Serializes object into source.
 	 */
 	public String serialize(final Object source) {
-		FastCharBuffer fastCharBuffer = new FastCharBuffer();
+		final CharArrayWriter charArrayWriter = new CharArrayWriter();
 
-		serialize(source, fastCharBuffer);
+		serialize(source, charArrayWriter);
 
-		return fastCharBuffer.toString();
-	}
-
-	/**
-	 * Serializes the object, but returns the {@link CharSequence}.
-	 */
-	public CharSequence serializeToCharSequence(final Object source) {
-		FastCharBuffer fastCharBuffer = new FastCharBuffer();
-
-		serialize(source, fastCharBuffer);
-
-		return fastCharBuffer;
+		return charArrayWriter.toString();
 	}
 
 	// ---------------------------------------------------------------- json context

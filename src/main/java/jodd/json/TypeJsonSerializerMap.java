@@ -25,7 +25,6 @@
 
 package jodd.json;
 
-import jodd.cache.TypeCache;
 import jodd.introspector.ClassDescriptor;
 import jodd.introspector.ClassIntrospector;
 import jodd.json.impl.ArraysJsonSerializer;
@@ -57,6 +56,7 @@ import jodd.json.impl.NumberJsonSerializer;
 import jodd.json.impl.ObjectJsonSerializer;
 import jodd.json.impl.UUIDJsonSerializer;
 import jodd.time.JulianDate;
+import jodd.util.TypeCache;
 
 import java.io.File;
 import java.math.BigDecimal;

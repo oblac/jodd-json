@@ -26,7 +26,7 @@
 package jodd.json;
 
 import jodd.io.FileUtil;
-import jodd.io.StreamUtil;
+import jodd.io.IOUtil;
 import jodd.json.fixtures.JsonParsers;
 import jodd.json.fixtures.model.FooBar;
 import jodd.json.fixtures.model.HitList;
@@ -65,7 +65,7 @@ class JsonParserTest {
 		if (dataRoot != null) {
 			return;
 		}
-		URL data = JsonParserTest.class.getResource("data");
+		final URL data = JsonParserTest.class.getResource("data");
 		if (data != null) {
 			dataRoot = data.getFile();
 		}
@@ -188,7 +188,7 @@ class JsonParserTest {
 			try {
 				jsonParser.parse("\"\\u034\"");
 				fail("error");
-			} catch (Exception ignore) {
+			} catch (final Exception ignore) {
 			}
 		});
 	}
@@ -307,7 +307,7 @@ class JsonParserTest {
 	void testSimpleArray() {
 		JsonParsers.forEachParser(jsonParser -> {
 
-			Object value = jsonParser.parse("[true, false, true, [\"A\", \"BB\"]]");
+			final Object value = jsonParser.parse("[true, false, true, [\"A\", \"BB\"]]");
 
 			assertNotNull(value);
 
@@ -333,13 +333,13 @@ class JsonParserTest {
 	void testSimpleMatrix() {
 		JsonParsers.forEachParser(jsonParser -> {
 
-			ArrHolder arrHolder = jsonParser.parse("{\"pos\":[1,2,3,4,5,6,7,8]}", ArrHolder.class);
+			final ArrHolder arrHolder = jsonParser.parse("{\"pos\":[1,2,3,4,5,6,7,8]}", ArrHolder.class);
 
 			assertArrayEquals(ints(1, 2, 3, 4, 5, 6, 7, 8), arrHolder.pos);
 		});
 
 		JsonParsers.forEachParser(jsonParser -> {
-				int[] ints = jsonParser.parse("[1,2,3,4]", int[].class);
+				final int[] ints = jsonParser.parse("[1,2,3,4]", int[].class);
 
 				assertEquals(4, ints.length);
 				assertEquals(1, ints[0]);
@@ -347,7 +347,7 @@ class JsonParserTest {
 
 		});
 		JsonParsers.forEachParser(jsonParser -> {
-			int[][] matrix = jsonParser.parse("[[1,2,3],[7,8,9]]", int[][].class);
+			final int[][] matrix = jsonParser.parse("[[1,2,3],[7,8,9]]", int[][].class);
 
 			assertEquals(2, matrix.length);
 
@@ -365,7 +365,7 @@ class JsonParserTest {
 			return amount;
 		}
 
-		public void setAmount(Integer amount) {
+		public void setAmount(final Integer amount) {
 			this.amount = amount;
 		}
 	}
@@ -383,7 +383,7 @@ class JsonParserTest {
 			return sign;
 		}
 
-		public void setSign(char sign) {
+		public void setSign(final char sign) {
 			this.sign = sign;
 		}
 	}
@@ -398,7 +398,7 @@ class JsonParserTest {
 			return id;
 		}
 
-		public void setId(long id) {
+		public void setId(final long id) {
 			this.id = id;
 		}
 
@@ -406,7 +406,7 @@ class JsonParserTest {
 			return bar;
 		}
 
-		public void setBar(Bar bar) {
+		public void setBar(final Bar bar) {
 			this.bar = bar;
 		}
 
@@ -414,7 +414,7 @@ class JsonParserTest {
 			return inter;
 		}
 
-		public void setInter(Inter inter) {
+		public void setInter(final Inter inter) {
 			this.inter = inter;
 		}
 	}
@@ -426,7 +426,7 @@ class JsonParserTest {
 			return value;
 		}
 
-		public void setValue(Object value) {
+		public void setValue(final Object value) {
 			this.value = value;
 		}
 	}
@@ -435,7 +435,7 @@ class JsonParserTest {
 	void testSimpleObject() {
 		JsonParsers.forEachParser(jsonParser -> {
 
-			Foo foo = jsonParser
+			final Foo foo = jsonParser
 				.map("inter", InterImpl.class)
 				.parse(
 					"{" +
@@ -489,11 +489,11 @@ class JsonParserTest {
 
 			assertNotNull(wildcard);
 			assertTrue(wildcard.getValue() instanceof Map);
-			Map mapValue = (Map) wildcard.getValue();
+			final Map mapValue = (Map) wildcard.getValue();
 			assertEquals(2, mapValue.size());
 			assertEquals("value", mapValue.get("key"));
 			assertTrue(mapValue.get("inner") instanceof Map);
-			Map innerValue = (Map) mapValue.get("inner");
+			final Map innerValue = (Map) mapValue.get("inner");
 			assertEquals(1, innerValue.size());
 			assertEquals("value", innerValue.get("key"));
 		});
@@ -513,7 +513,7 @@ class JsonParserTest {
 			return bar;
 		}
 
-		public void setBar(Bar bar) {
+		public void setBar(final Bar bar) {
 			this.bar = bar;
 		}
 
@@ -521,7 +521,7 @@ class JsonParserTest {
 			return numbers;
 		}
 
-		public void setNumbers(List<Byte> numbers) {
+		public void setNumbers(final List<Byte> numbers) {
 			this.numbers = numbers;
 		}
 
@@ -529,7 +529,7 @@ class JsonParserTest {
 			return bars;
 		}
 
-		public void setBars(List<Bar> bars) {
+		public void setBars(final List<Bar> bars) {
 			this.bars = bars;
 		}
 
@@ -537,7 +537,7 @@ class JsonParserTest {
 			return inters;
 		}
 
-		public void setInters(List<Inter> inters) {
+		public void setInters(final List<Inter> inters) {
 			this.inters = inters;
 		}
 
@@ -545,7 +545,7 @@ class JsonParserTest {
 			return years;
 		}
 
-		public void setYears(int[] years) {
+		public void setYears(final int[] years) {
 			this.years = years;
 		}
 
@@ -553,7 +553,7 @@ class JsonParserTest {
 			return bongos;
 		}
 
-		public void setBongos(Bar[] bongos) {
+		public void setBongos(final Bar[] bongos) {
 			this.bongos = bongos;
 		}
 	}
@@ -566,40 +566,40 @@ class JsonParserTest {
 			String json = null;
 			try {
 				json = FileUtil.readString(new File(dataRoot, "complex.json"));
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				fail(e);
 			}
 
-			Aaa aaa = jsonParser
+			final Aaa aaa = jsonParser
 				.map("numbers.values", Byte.class)
 				.parse(json, Aaa.class);
 
 			assertNotNull(aaa);
 
 			assertEquals(84, aaa.getBar().getAmount().intValue());
-			List<Byte> numbers = aaa.getNumbers();
+			final List<Byte> numbers = aaa.getNumbers();
 			assertEquals(2, numbers.size());
 			assertEquals(19, numbers.get(0).byteValue());
 			assertEquals(21, numbers.get(1).byteValue());
 
-			List<Bar> bars = aaa.getBars();
+			final List<Bar> bars = aaa.getBars();
 			assertEquals(2, bars.size());
 			assertEquals(5, bars.get(0).getAmount().intValue());
 			assertEquals(305, bars.get(1).getAmount().intValue());
 
-			List<Inter> inters = aaa.getInters();
+			final List<Inter> inters = aaa.getInters();
 			assertEquals(3, inters.size());
 			assertEquals('a', inters.get(0).getSign());
 			assertEquals('b', inters.get(1).getSign());
 			assertEquals('c', inters.get(2).getSign());
 
-			int[] years = aaa.getYears();
+			final int[] years = aaa.getYears();
 			assertEquals(3, years.length);
 			assertEquals(1975, years[0]);
 			assertEquals(2001, years[1]);
 			assertEquals(2013, years[2]);
 
-			Bar[] bongos = aaa.getBongos();
+			final Bar[] bongos = aaa.getBongos();
 			assertEquals(3, bongos.length);
 			assertEquals(15, bongos[0].getAmount().intValue());
 			assertEquals(35, bongos[1].getAmount().intValue());
@@ -618,7 +618,7 @@ class JsonParserTest {
 			return name;
 		}
 
-		public void setName(String name) {
+		public void setName(final String name) {
 			this.name = name;
 		}
 
@@ -626,7 +626,7 @@ class JsonParserTest {
 			return bars;
 		}
 
-		public void setBars(Map<String, Bar> bars) {
+		public void setBars(final Map<String, Bar> bars) {
 			this.bars = bars;
 		}
 
@@ -634,7 +634,7 @@ class JsonParserTest {
 			return inters;
 		}
 
-		public void setInters(Map<String, Inter> inters) {
+		public void setInters(final Map<String, Inter> inters) {
 			this.inters = inters;
 		}
 	}
@@ -645,11 +645,11 @@ class JsonParserTest {
 			String json = null;
 			try {
 				json = FileUtil.readString(new File(dataRoot, "complexMaps.json"));
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				fail(e);
 			}
 
-			User user = jsonParser
+			final User user = jsonParser
 				.map("inters.values", InterImpl.class)
 				.parse(json, User.class);
 
@@ -657,13 +657,13 @@ class JsonParserTest {
 
 			assertEquals("Mak", user.getName());
 
-			Map<String, Bar> bars = user.getBars();
+			final Map<String, Bar> bars = user.getBars();
 			assertEquals(2, bars.size());
 
 			assertEquals(12300, bars.get("123").getAmount().intValue());
 			assertEquals(45600, bars.get("456").getAmount().intValue());
 
-			Map<String, Inter> inters = user.getInters();
+			final Map<String, Inter> inters = user.getInters();
 			assertEquals(3, inters.size());
 		});
 	}
@@ -675,20 +675,20 @@ class JsonParserTest {
 			String json = null;
 			try {
 				json = FileUtil.readString(new File(dataRoot, "actionLabel.json"));
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				fail(e);
 			}
 			Map<String, Object> map;
 			try {
 				map = jsonParser.parse(json);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				fail(ex.toString());
 				throw ex;
 			}
 
 			map = (Map<String, Object>) map.get("menu");
 			assertEquals("SVG Viewer", map.get("header"));
-			List<String> items = (List<String>) map.get("items");
+			final List<String> items = (List<String>) map.get("items");
 
 			assertEquals(22, items.size());
 			assertNull(items.get(2));
@@ -698,21 +698,21 @@ class JsonParserTest {
 
 	@Test
 	void testCitmCatalog() throws Exception {
-		FileInputStream fis = new FileInputStream(new File(dataRoot, "citm_catalog.json.gz"));
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final FileInputStream fis = new FileInputStream(new File(dataRoot, "citm_catalog.json.gz"));
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		StreamUtil.copy(new GZIPInputStream(fis), out);
+		IOUtil.copy(new GZIPInputStream(fis), out);
 
-		String json = out.toString("UTF-8");
+		final String json = out.toString("UTF-8");
 
 		fis.close();
 
 		JsonParsers.forEachParser(jsonParser -> {
-			Map<String, Object> map;
+			final Map<String, Object> map;
 			try {
 				jsonParser.parse(json);
 				map = jsonParser.parse(json);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				fail(ex.toString());
 				throw ex;
 			}
@@ -728,7 +728,7 @@ class JsonParserTest {
 
 			assertEquals("12\n3", jsonParser.parse("\"" + "12\\n3" + "\""));
 
-			String big = RandomString.get().randomAlpha(510);
+			final String big = RandomString.get().randomAlpha(510);
 
 			String jbig = big + "\\n";
 			String rbig = big + "\n";
@@ -755,12 +755,12 @@ class JsonParserTest {
 			try {
 				jsonParser.parse("\"" + "123" + "\",");
 				fail("error");
-			} catch (JsonException ignore) {
+			} catch (final JsonException ignore) {
 			}
 			try {
 				jsonParser.parse("{\"aa\":\"" + "123" + "\",}");
 				fail("error");
-			} catch (JsonException ignore) {
+			} catch (final JsonException ignore) {
 			}
 		});
 	}
@@ -768,9 +768,9 @@ class JsonParserTest {
 	@Test
 	void testKeys() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = "{\"123\" : \"name\"}";
+			final String json = "{\"123\" : \"name\"}";
 
-			Map<Long, String> map = jsonParser.map("keys", Long.class).parse(json);
+			final Map<Long, String> map = jsonParser.map("keys", Long.class).parse(json);
 
 			assertEquals(1, map.size());
 			assertEquals("name", map.get(Long.valueOf(123)));
@@ -778,13 +778,13 @@ class JsonParserTest {
 		});
 
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = "{\"eee\" : {\"123\" : \"name\"}}";
+			final String json = "{\"eee\" : {\"123\" : \"name\"}}";
 
-			Map<String, Map<Long, String>> map2 = jsonParser.map("values.keys", Long.class).parse(json);
+			final Map<String, Map<Long, String>> map2 = jsonParser.map("values.keys", Long.class).parse(json);
 
 			assertEquals(1, map2.size());
 
-			Map<Long, String> map = map2.get("eee");
+			final Map<Long, String> map = map2.get("eee");
 			assertEquals(1, map.size());
 			assertEquals("name", map.get(Long.valueOf(123)));
 		});
@@ -798,7 +798,7 @@ class JsonParserTest {
 			return data;
 		}
 
-		public void setData(Map<Long, Long[]> data) {
+		public void setData(final Map<Long, Long[]> data) {
 			this.data = data;
 		}
 	}
@@ -806,15 +806,15 @@ class JsonParserTest {
 	@Test
 	void testMapOfListArrays() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = "{\"data\" : {\"123\" : [1,2,3]}}";
+			final String json = "{\"data\" : {\"123\" : [1,2,3]}}";
 
-			MapHolder mapHolder = jsonParser.parse(json, MapHolder.class);
+			final MapHolder mapHolder = jsonParser.parse(json, MapHolder.class);
 
-			Map<Long, Long[]> data = mapHolder.getData();
+			final Map<Long, Long[]> data = mapHolder.getData();
 
 			assertEquals(1, data.size());
 
-			Long[] longs = data.get(Long.valueOf(123));
+			final Long[] longs = data.get(Long.valueOf(123));
 
 			assertNotNull(longs);
 		});
@@ -830,7 +830,7 @@ class JsonParserTest {
 			return firstName;
 		}
 
-		public void setFirstName(String firstName) {
+		public void setFirstName(final String firstName) {
 			this.firstName = firstName;
 		}
 	}
@@ -838,9 +838,9 @@ class JsonParserTest {
 	@Test
 	void testAnnotationNameChangeFirstTime() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = "{\"first_name\":\"Djordje\"}";
+			final String json = "{\"first_name\":\"Djordje\"}";
 
-			Glista jsonGlista = jsonParser.parse(json, Glista.class);
+			final Glista jsonGlista = jsonParser.parse(json, Glista.class);
 
 			assertEquals("Djordje", jsonGlista.getFirstName());
 		});
@@ -849,12 +849,12 @@ class JsonParserTest {
 	@Test
 	void testEscapeAtTheEndOfLongString() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String s = StringUtil.repeat('A', 800);
-			String json = "\"" + s + "\\n\"";
+			final String s = StringUtil.repeat('A', 800);
+			final String json = "\"" + s + "\\n\"";
 
 			try {
 				jsonParser.parse(json);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				fail(ex.toString());
 			}
 		});
@@ -863,9 +863,9 @@ class JsonParserTest {
 	@Test
 	void testNamesWithDots() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = "{\"foo.bar\":123}";
+			final String json = "{\"foo.bar\":123}";
 
-			FooBar fooBar = jsonParser.parse(json, FooBar.class);
+			final FooBar fooBar = jsonParser.parse(json, FooBar.class);
 
 			assertEquals(123, fooBar.getValue().intValue());
 		});
@@ -874,9 +874,9 @@ class JsonParserTest {
 	@Test
 	void testSets() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = "{\"names\":[\"Pig\",\"Joe\"],\"numbers\":[173,22]}";
+			final String json = "{\"names\":[\"Pig\",\"Joe\"],\"numbers\":[173,22]}";
 
-			HitList hitList = jsonParser.parse(json, HitList.class);
+			final HitList hitList = jsonParser.parse(json, HitList.class);
 
 			assertNotNull(hitList);
 
@@ -892,11 +892,11 @@ class JsonParserTest {
 
 	@Test
 	void testLazyParserPreservesFieldOrder() {
-		String json = "{\"field1\":\"value1\", \"field2\":\"value2\", \"field3\":\"value3\", \"field4\":\"value4\"}";
+		final String json = "{\"field1\":\"value1\", \"field2\":\"value2\", \"field3\":\"value3\", \"field4\":\"value4\"}";
 		JsonParsers.forEachParser(jsonParser -> {
-			Map<String, String> object = jsonParser.parse(json);
+			final Map<String, String> object = jsonParser.parse(json);
 
-			List<Map.Entry<String, String>> entries = object.entrySet().stream().collect(Collectors.toList());
+			final List<Map.Entry<String, String>> entries = object.entrySet().stream().collect(Collectors.toList());
 
 			assertEquals(4, entries.size());
 			assertEquals("field1", entries.get(0).getKey());
@@ -908,12 +908,12 @@ class JsonParserTest {
 
 	@Test
 	void testLazyParserSupportEscapedDoubleQuotes() {
-		String json = "{ \"values\": [{ \"value\": \"foo\\\"bar\" }]}";
+		final String json = "{ \"values\": [{ \"value\": \"foo\\\"bar\" }]}";
 
 		JsonParsers.forEachParser(jsonParser -> {
-			Map<String, Object> object = jsonParser.parse(json);
+			final Map<String, Object> object = jsonParser.parse(json);
 
-			List<Map.Entry<String, Object>> entries = object.entrySet().stream().collect(Collectors.toList());
+			final List<Map.Entry<String, Object>> entries = object.entrySet().stream().collect(Collectors.toList());
 
 			assertEquals(1, entries.size());
 			assertEquals("values", entries.get(0).getKey());
@@ -923,12 +923,12 @@ class JsonParserTest {
 
 	@Test
 	void testLazyParserSupportTrailingEscapedBackslash() {
-		String json = "{ \"foo\":{\"value\":\"\\\\\"} }";
+		final String json = "{ \"foo\":{\"value\":\"\\\\\"} }";
 
 		JsonParsers.forEachParser(jsonParser -> {
-			Map<String, Object> object = jsonParser.parse(json);
+			final Map<String, Object> object = jsonParser.parse(json);
 
-			List<Map.Entry<String, Object>> entries = object.entrySet().stream().collect(Collectors.toList());
+			final List<Map.Entry<String, Object>> entries = object.entrySet().stream().collect(Collectors.toList());
 
 			assertEquals(1, entries.size());
 			assertEquals("foo", entries.get(0).getKey());
@@ -938,13 +938,13 @@ class JsonParserTest {
 
 	@Test
 	void testLazyParserValuesDoesntReturnSuppliers() {
-		String json = "{ \"foo\":{\"bar\":\"value\"} }";
+		final String json = "{ \"foo\":{\"bar\":\"value\"} }";
 
 		JsonParsers.forEachParser(jsonParser -> {
-			Map<String, Object> object = jsonParser.parse(json);
+			final Map<String, Object> object = jsonParser.parse(json);
 
 			object.values().forEach(value -> {
-				Map<String, String> inner = (Map<String, String>) value;
+				final Map<String, String> inner = (Map<String, String>) value;
 				assertEquals("value", inner.values().iterator().next());
 			});
 		});

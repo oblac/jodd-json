@@ -63,24 +63,24 @@ public abstract class TypeJsonVisitor {
 	 * Visits a type.
 	 */
 	public void visit() {
-		ClassDescriptor classDescriptor = ClassIntrospector.get().lookup(type);
+		final ClassDescriptor classDescriptor = ClassIntrospector.get().lookup(type);
 
 		if (classMetadataName != null) {
 			// process first 'meta' fields 'class'
 			onProperty(classMetadataName, null, false);
 		}
 
-		PropertyDescriptor[] propertyDescriptors = classDescriptor.getAllPropertyDescriptors();
+		final PropertyDescriptor[] propertyDescriptors = classDescriptor.getAllPropertyDescriptors();
 
-		for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+		for (final PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 
-			Getter getter = propertyDescriptor.getGetter(declared);
+			final Getter getter = propertyDescriptor.getGetter(declared);
 			if (getter != null) {
-				String propertyName = propertyDescriptor.getName();
+				final String propertyName = propertyDescriptor.getName();
 
 				boolean isTransient = false;
 				// check for transient flag
-				FieldDescriptor fieldDescriptor = propertyDescriptor.getFieldDescriptor();
+				final FieldDescriptor fieldDescriptor = propertyDescriptor.getFieldDescriptor();
 
 				if (fieldDescriptor != null) {
 					isTransient = Modifier.isTransient(fieldDescriptor.getField().getModifiers());
@@ -101,9 +101,9 @@ public abstract class TypeJsonVisitor {
 		final PropertyDescriptor propertyDescriptor,
 		final boolean isTransient) {
 
-		Class propertyType = propertyDescriptor == null ?  null : propertyDescriptor.getType();
+		final Class propertyType = propertyDescriptor == null ?  null : propertyDescriptor.getType();
 
-		Path currentPath = jsonContext.path;
+		final Path currentPath = jsonContext.path;
 
 		currentPath.push(propertyName);
 
@@ -129,7 +129,7 @@ public abstract class TypeJsonVisitor {
 
 		// + annotations
 
-		include = typeData.rules.apply(propertyName, true, include);
+		include = typeData.rules.apply(propertyName, include);
 
 		// + path queries: excludes/includes
 

@@ -25,13 +25,13 @@
 
 package jodd.json.meta;
 
-import jodd.cache.TypeCache;
 import jodd.introspector.ClassDescriptor;
 import jodd.introspector.ClassIntrospector;
 import jodd.introspector.FieldDescriptor;
 import jodd.introspector.MethodDescriptor;
 import jodd.introspector.PropertyDescriptor;
-import jodd.util.annotation.AnnotationParser;
+import jodd.util.AnnotationParser;
+import jodd.util.TypeCache;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

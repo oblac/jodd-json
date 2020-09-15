@@ -25,7 +25,8 @@
 
 package jodd.json;
 
-import jodd.io.StreamUtil;
+
+import jodd.io.IOUtil;
 import jodd.json.fixtures.JsonParsers;
 import jodd.json.fixtures.model.cat.Area;
 import jodd.json.fixtures.model.cat.Catalog;
@@ -60,7 +61,7 @@ class CatalogTest {
 		if (dataRoot != null) {
 			return;
 		}
-		URL data = JsonParserTest.class.getResource("data");
+		final URL data = JsonParserTest.class.getResource("data");
 		if (data != null) {
 			dataRoot = data.getFile();
 		}
@@ -69,9 +70,9 @@ class CatalogTest {
 	@Test
 	void testParseCatalogAsObject() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = loadJSON("citm_catalog");
+			final String json = loadJSON("citm_catalog");
 
-			Catalog catalog = jsonParser.parse(json, Catalog.class);
+			final Catalog catalog = jsonParser.parse(json, Catalog.class);
 
 			assertCatalog(catalog);
 		});
@@ -80,9 +81,9 @@ class CatalogTest {
 	@Test
 	void testParseCatalogAsObjectWithClassname() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = loadJSON("citm_catalog");
+			final String json = loadJSON("citm_catalog");
 
-			Catalog catalog = jsonParser.setClassMetadataName("class").parse(json, Catalog.class);
+			final Catalog catalog = jsonParser.setClassMetadataName("class").parse(json, Catalog.class);
 
 			assertCatalog(catalog);
 		});
@@ -91,13 +92,13 @@ class CatalogTest {
 	@Test
 	void testParseSerializeCatalogNotDeep() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = loadJSON("citm_catalog");
+			final String json = loadJSON("citm_catalog");
 
-			Catalog catalog = jsonParser.parse(json, Catalog.class);
+			final Catalog catalog = jsonParser.parse(json, Catalog.class);
 
-			String newJson = new JsonSerializer().deep(false).serialize(catalog);
+			final String newJson = new JsonSerializer().deep(false).serialize(catalog);
 
-			Catalog jsonCatalog = jsonParser.parse(newJson, Catalog.class);
+			final Catalog jsonCatalog = jsonParser.parse(newJson, Catalog.class);
 
 			assertNull(jsonCatalog.getPerformances());
 			assertNull(jsonCatalog.getAreaNames());
@@ -114,13 +115,13 @@ class CatalogTest {
 	@Test
 	void testParseSerializeCatalog() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = loadJSON("citm_catalog");
+			final String json = loadJSON("citm_catalog");
 
-			Catalog catalog = jsonParser.parse(json, Catalog.class);
+			final Catalog catalog = jsonParser.parse(json, Catalog.class);
 
-			String newJson = new JsonSerializer().deep(true).serialize(catalog);
+			final String newJson = new JsonSerializer().deep(true).serialize(catalog);
 
-			Catalog jsonCatalog = jsonParser.parse(newJson, Catalog.class);
+			final Catalog jsonCatalog = jsonParser.parse(newJson, Catalog.class);
 
 			assertCatalog(jsonCatalog);
 		});
@@ -129,23 +130,23 @@ class CatalogTest {
 	@Test
 	void testParseCatalogAsMap() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = loadJSON("citm_catalog");
+			final String json = loadJSON("citm_catalog");
 
-			Map catalog = jsonParser
+			final Map catalog = jsonParser
 				.map("values.keys", Long.class)
 				.map("venueNames.keys", String.class)
 				.useAltPaths()
 				.parse(json);
 
-			String newJson = new JsonSerializer().deep(true).serialize(catalog);
+			final String newJson = new JsonSerializer().deep(true).serialize(catalog);
 
-			Catalog jsonCatalog = jsonParser.parse(newJson, Catalog.class);
+			final Catalog jsonCatalog = jsonParser.parse(newJson, Catalog.class);
 
 			assertCatalog(jsonCatalog);
 		});
 	}
 
-	private void assertCatalog(Catalog catalog) {
+	private void assertCatalog(final Catalog catalog) {
 		assertNotNull(catalog);
 
 		Map<Long, String> map;
@@ -165,54 +166,54 @@ class CatalogTest {
 
 		// events
 
-		Map<Long, Event> events = catalog.getEvents();
+		final Map<Long, Event> events = catalog.getEvents();
 		assertNotNull(events);
 		assertEquals(184, events.size());
 
-		Event event = events.get(Long.valueOf(138586341));
+		final Event event = events.get(Long.valueOf(138586341));
 		assertNotNull(event);
 		assertNull(event.getDescription());
 		assertEquals(138586341, event.getId().longValue());
 		assertNull(event.getLogo());
 		assertEquals("30th Anniversary Tour", event.getName());
-		Long[] subTopicIds = event.getSubTopicIds();
+		final Long[] subTopicIds = event.getSubTopicIds();
 		assertEquals(2, subTopicIds.length);
 		assertEquals(337184269, subTopicIds[0].longValue());
 		assertEquals(337184283, subTopicIds[1].longValue());
 		assertNull(event.getSubjectCode());
 		assertNull(event.getSubtitle());
-		Long[] topicIds = event.getTopicIds();
+		final Long[] topicIds = event.getTopicIds();
 		assertEquals(2, topicIds.length);
 		assertEquals(324846099, topicIds[0].longValue());
 		assertEquals(107888604, topicIds[1].longValue());
 
 		// performances
 
-		List<Performance> performances = catalog.getPerformances();
+		final List<Performance> performances = catalog.getPerformances();
 		assertNotNull(performances);
 		assertEquals(243, performances.size());
 
-		Performance performance = performances.get(0);
+		final Performance performance = performances.get(0);
 		assertEquals(138586341, performance.getEventId().longValue());
 		assertEquals(339887544, performance.getId().longValue());
 		assertNull(performance.getLogo());
 		assertNull(performance.getName());
-		List<Price> prices = performance.getPrices();
+		final List<Price> prices = performance.getPrices();
 		assertEquals(2, prices.size());
-		Price price = prices.get(0);
+		final Price price = prices.get(0);
 		assertEquals(90250, price.getAmount());
 		assertEquals(337100890, price.getAudienceSubCategoryId().longValue());
 		assertEquals(338937295, price.getSeatCategoryId().longValue());
-		List<SeatCategory> seatCategories = performance.getSeatCategories();
+		final List<SeatCategory> seatCategories = performance.getSeatCategories();
 		assertEquals(2, seatCategories.size());
-		SeatCategory seatCategory = seatCategories.get(0);
+		final SeatCategory seatCategory = seatCategories.get(0);
 		assertEquals(338937295, seatCategory.getSeatCategoryId().longValue());
-		List<Area> areas = seatCategory.getAreas();
+		final List<Area> areas = seatCategory.getAreas();
 		assertEquals(11, areas.size());
-		Area area = areas.get(0);
+		final Area area = areas.get(0);
 		assertEquals(205705999, area.getAreaId().longValue());
 		assertEquals(0, area.getBlockIds().length);
-		LocalDateTime start = performance.getStart();
+		final LocalDateTime start = performance.getStart();
 		assertEquals(1372701600000L, TimeUtil.toMilliseconds(start));
 		assertEquals("PLEYEL_PLEYEL", performance.getVenueCode());
 
@@ -236,15 +237,15 @@ class CatalogTest {
 
 		// topicSubTopics
 
-		Map<Long, Long[]> map2 = catalog.getTopicSubTopics();
+		final Map<Long, Long[]> map2 = catalog.getTopicSubTopics();
 		assertEquals(4, map2.size());
-		Long[] longs = map2.get(Long.valueOf(107888604));
+		final Long[] longs = map2.get(Long.valueOf(107888604));
 		assertEquals(2, longs.length);
 		assertEquals(337184283L, longs[0].longValue());
 
 		// venueNames
 
-		Map<String, String> map3 = catalog.getVenueNames();
+		final Map<String, String> map3 = catalog.getVenueNames();
 		assertEquals(1, map3.size());
 		assertEquals("Salle Pleyel", map3.get("PLEYEL_PLEYEL"));
 	}
@@ -252,14 +253,14 @@ class CatalogTest {
 	@Test
 	void test20k() {
 		JsonParsers.forEachParser(jsonParser -> {
-			String json = loadJSON("20k");
+			final String json = loadJSON("20k");
 
-			List<Map<String, Object>> array = jsonParser.parse(json);
+			final List<Map<String, Object>> array = jsonParser.parse(json);
 
 			assertEquals(22, array.size());
 
 			for (int i = 0; i < 22; i++) {
-				Map<String, Object> map = array.get(i);
+				final Map<String, Object> map = array.get(i);
 
 				assertEquals(19, map.size());
 				assertEquals(i, ((Integer) map.get("id")).intValue());
@@ -267,20 +268,20 @@ class CatalogTest {
 		});
 	}
 
-	private String loadJSON(String name) {
+	private String loadJSON(final String name) {
 		try {
-			FileInputStream fis = new FileInputStream(new File(dataRoot, name + ".json.gz"));
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			final FileInputStream fis = new FileInputStream(new File(dataRoot, name + ".json.gz"));
+			final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-			StreamUtil.copy(new GZIPInputStream(fis), out);
+			IOUtil.copy(new GZIPInputStream(fis), out);
 
-			String json = out.toString("UTF-8");
+			final String json = out.toString("UTF-8");
 
 			fis.close();
 
 			return json;
 		}
-		catch (IOException io) {
+		catch (final IOException io) {
 			throw new RuntimeException(io);
 		}
 	}
